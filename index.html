@@ -6,19 +6,20 @@
     <title>Mindful Craft - Bienestar Creativo Consciente</title>
     <script src="https://cdn.tailwindcss.com/3.4.17"></script>
     <script src="/_sdk/element_sdk.js"></script>
+    <script src="/_sdk/data_sdk.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&amp;family=Manrope:wght@300;400;500;600&amp;display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&amp;family=Manrope:wght@500;600;700&amp;display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
         --bg-beige: #f3efea;
-        --green-moss: #224f10;
-        --black-ink: #111111;
-        --gray-stone: #6e6e6e;
-        --green-hover: #3a6b23;
+        --green-moss: #1d421d;
+        --black-ink: #000000;
+        --gray-stone: #333333;
+        --green-hover: #2a5f2a;
       }
 
       * {
@@ -27,10 +28,12 @@
 
       .font-serif-elegant {
         font-family: "Cormorant Garamond", Georgia, serif;
+        font-weight: 700;
       }
 
       .font-sans-clean {
         font-family: "Manrope", system-ui, sans-serif;
+        font-weight: 600;
       }
 
       @keyframes float {
@@ -51,25 +54,6 @@
         to {
           opacity: 1;
           transform: translateY(0);
-        }
-      }
-
-      @keyframes brushStroke {
-        0% {
-          stroke-dashoffset: 200;
-        }
-        100% {
-          stroke-dashoffset: 0;
-        }
-      }
-
-      @keyframes pulse-gentle {
-        0%,
-        100% {
-          opacity: 0.4;
-        }
-        50% {
-          opacity: 0.8;
         }
       }
 
@@ -96,16 +80,10 @@
         opacity: 0;
       }
 
-      .brush-stroke {
-        stroke-dasharray: 200;
-        stroke-dashoffset: 200;
-        animation: brushStroke 2s ease-out forwards;
-      }
-
       .pattern-sashiko {
         background-image: radial-gradient(
           circle at 1px 1px,
-          var(--green-moss) 1px,
+          #1d421d 1px,
           transparent 0
         );
         background-size: 24px 24px;
@@ -117,7 +95,7 @@
 
       .card-hover:hover {
         transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(34, 79, 16, 0.1);
+        box-shadow: 0 20px 40px rgba(29, 66, 29, 0.1);
       }
 
       .btn-primary {
@@ -148,21 +126,254 @@
 
       .section-divider {
         height: 1px;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          var(--green-moss),
-          transparent
-        );
+        background: linear-gradient(90deg, transparent, #1d421d, transparent);
         opacity: 0.3;
       }
 
-      .tea-steam {
-        animation: pulse-gentle 3s ease-in-out infinite;
+      .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
       }
 
-      .tea-steam-delay {
-        animation: pulse-gentle 3s ease-in-out 0.5s infinite;
+      .calendar-day:hover {
+        background-color: rgba(29, 66, 29, 0.1);
+      }
+
+      .calendar-day.selected {
+        background-color: #1d421d;
+        color: white;
+        font-weight: 700;
+      }
+
+      .calendar-day.disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1rem;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 1.5rem;
+        max-width: 28rem;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: #1d421d;
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 0.5rem;
+        animation: slideIn 0.3s ease;
+        z-index: 999;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      /* CHATBOT WIDGET STYLES */
+      #chatbot-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9998;
+        font-family: "Manrope", system-ui, sans-serif;
+      }
+
+      #chatbot-toggle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1d421d 0%, #2a5f2a 100%);
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        box-shadow: 0 4px 12px rgba(29, 66, 29, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      #chatbot-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(29, 66, 29, 0.4);
+      }
+
+      #chatbot-container {
+        position: absolute;
+        bottom: 80px;
+        right: 0;
+        width: 380px;
+        height: 600px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+        pointer-events: none;
+        transition: all 0.3s ease;
+        overflow: hidden;
+      }
+
+      #chatbot-container.active {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        pointer-events: auto;
+      }
+
+      .chatbot-msg-user {
+        display: flex;
+        justify-content: flex-end;
+        animation: slideUpMsg 0.3s ease-out;
+      }
+
+      .chatbot-msg-bot {
+        display: flex;
+        justify-content: flex-start;
+        animation: slideUpMsg 0.3s ease-out;
+      }
+
+      .chatbot-bubble {
+        max-width: 75%;
+        padding: 10px 14px;
+        border-radius: 14px;
+        font-size: 12px;
+        line-height: 1.4;
+        word-wrap: break-word;
+      }
+
+      .chatbot-bubble-user {
+        background: #1d421d;
+        color: white;
+        border-bottom-right-radius: 3px;
+      }
+
+      .chatbot-bubble-bot {
+        background: white;
+        color: #000000;
+        border: 1px solid rgba(29, 66, 29, 0.2);
+        border-bottom-left-radius: 3px;
+      }
+
+      .chatbot-typing {
+        display: flex;
+        gap: 3px;
+        padding: 10px 14px;
+        background: white;
+        border: 1px solid rgba(29, 66, 29, 0.2);
+        border-radius: 14px;
+        width: fit-content;
+      }
+
+      .chatbot-typing span {
+        width: 6px;
+        height: 6px;
+        background: #333333;
+        border-radius: 50%;
+        animation: dotPulse 1.2s infinite;
+      }
+
+      .chatbot-typing span:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .chatbot-typing span:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes slideUpMsg {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes dotPulse {
+        0%,
+        100% {
+          opacity: 0.4;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      #chatbot-input:focus {
+        border-color: #1d421d !important;
+      }
+
+      #chatbot-send:hover {
+        background: #2a5f2a;
+        transform: scale(1.05);
+      }
+
+      @media (max-width: 640px) {
+        #chatbot-container {
+          width: 100vw !important;
+          height: 100vh !important;
+          bottom: 0 !important;
+          right: 0 !important;
+          border-radius: 0 !important;
+          max-width: 100%;
+          max-height: 100%;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .hero-section {
+          min-height: calc(100vh - 60px);
+          padding-top: 2rem;
+          padding-bottom: 2rem;
+        }
+
+        .decorative-circle-top {
+          width: 150px !important;
+          height: 150px !important;
+          top: 50px !important;
+          left: 0 !important;
+        }
+
+        .decorative-circle-bottom {
+          width: 200px !important;
+          height: 200px !important;
+          bottom: 50px !important;
+          right: -50px !important;
+        }
       }
     </style>
     <style>
@@ -170,11 +381,10 @@
         box-sizing: border-box;
       }
     </style>
-    <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
   </head>
   <body
     class="h-full font-sans-clean"
-    style="background-color: var(--bg-beige); color: var(--black-ink)"
+    style="background-color: var(--bg-beige); color: #000000"
   >
     <div id="app-wrapper" class="w-full h-full overflow-auto">
       <!-- Navigation -->
@@ -183,47 +393,50 @@
         style="background-color: rgba(243, 239, 234, 0.9)"
       >
         <div
-          class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between"
+          class="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between"
         >
-          <div class="flex items-center gap-3">
-            <svg width="32" height="32" viewbox="0 0 40 40" fill="none">
-              <circle
-                cx="20"
-                cy="20"
-                r="18"
-                stroke="#224F10"
-                stroke-width="2"
-                fill="none"
-              />
-              <path
-                d="M12 20 Q20 10 28 20 Q20 30 12 20"
-                stroke="#224F10"
-                stroke-width="1.5"
-                fill="none"
-                class="brush-stroke"
-              />
-              <circle cx="20" cy="20" r="3" fill="#224F10" /></svg
-            ><span
-              class="font-serif-elegant text-xl font-semibold"
-              style="color: var(--green-moss)"
+          <div class="flex items-center gap-2 sm:gap-3">
+            <img
+              src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/mindful%20craft.png"
+              alt="Mindful Craft Logo"
+              width="32"
+              height="32"
+              loading="lazy"
+              onerror="console.error('Logo failed to load:', this.src); this.style.background='#1d421d'; this.alt='MC';"
+              class="rounded w-7 h-7 sm:w-8 sm:h-8"
+            />
+            <span
+              class="font-serif-elegant text-base sm:text-xl font-semibold hidden sm:inline"
+              style="color: #000000"
               >Mindful Craft</span
             >
           </div>
           <div
             class="hidden md:flex items-center gap-8 text-sm"
-            style="color: var(--gray-stone)"
+            style="color: #000000"
           >
-            <a href="#funciones" class="hover:text-[#224F10] transition-colors"
+            <a
+              href="#funciones"
+              class="hover:text-[#1d421d] transition-colors font-semibold"
               >Funciones</a
             >
-            <a href="#valores" class="hover:text-[#224F10] transition-colors"
+            <a
+              href="#valores"
+              class="hover:text-[#1d421d] transition-colors font-semibold"
               >Valores</a
             >
-            <a href="#ritual" class="hover:text-[#224F10] transition-colors"
-              >Tu Ritual</a
+            <a
+              href="#eventos"
+              class="hover:text-[#1d421d] transition-colors font-semibold"
+              >Eventos</a
+            >
+            <a
+              href="#contacto"
+              class="hover:text-[#1d421d] transition-colors font-semibold"
+              >Contacto</a
             >
           </div>
-          <button class="md:hidden p-2" style="color: var(--green-moss)">
+          <button class="md:hidden p-2" style="color: #1d421d">
             <svg
               width="24"
               height="24"
@@ -239,168 +452,97 @@
       </nav>
       <!-- Hero Section -->
       <header
-        class="min-h-screen flex items-center justify-center relative pt-20 px-6"
+        class="hero-section min-h-screen flex items-center justify-center relative pt-16 sm:pt-20 px-4 sm:px-6"
       >
-        <!-- Decorative elements -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
           <div
-            class="absolute top-20 left-10 w-64 h-64 rounded-full opacity-20"
+            class="decorative-circle-top absolute top-20 left-10 w-64 h-64 rounded-full opacity-20"
             style="
-              background: radial-gradient(circle, #224f10 0%, transparent 70%);
+              background: radial-gradient(circle, #1d421d 0%, transparent 70%);
             "
           ></div>
           <div
-            class="absolute bottom-20 right-10 w-96 h-96 rounded-full opacity-10"
+            class="decorative-circle-bottom absolute bottom-20 right-10 w-96 h-96 rounded-full opacity-10"
             style="
-              background: radial-gradient(circle, #224f10 0%, transparent 70%);
+              background: radial-gradient(circle, #1d421d 0%, transparent 70%);
             "
           ></div>
         </div>
-        <div class="max-w-4xl mx-auto text-center relative z-10">
-          <!-- Floating tea icon -->
-          <div class="mb-8 animate-float">
-            <svg
-              width="80"
-              height="80"
-              viewbox="0 0 80 80"
-              fill="none"
-              class="mx-auto"
-            >
-              <!-- Tea cup -->
-              <ellipse
-                cx="40"
-                cy="55"
-                rx="22"
-                ry="8"
-                stroke="#224F10"
-                stroke-width="2"
-                fill="none"
-              />
-              <path
-                d="M18 55 L22 35 Q40 32 58 35 L62 55"
-                stroke="#224F10"
-                stroke-width="2"
-                fill="none"
-              />
-              <path
-                d="M62 45 Q72 45 72 55 Q72 62 62 60"
-                stroke="#224F10"
-                stroke-width="2"
-                fill="none"
-              />
-              <!-- Steam -->
-              <path
-                d="M32 30 Q30 22 34 15"
-                stroke="#224F10"
-                stroke-width="1.5"
-                fill="none"
-                stroke-linecap="round"
-                class="tea-steam"
-              />
-              <path
-                d="M40 28 Q38 18 42 10"
-                stroke="#224F10"
-                stroke-width="1.5"
-                fill="none"
-                stroke-linecap="round"
-                class="tea-steam-delay"
-              />
-              <path
-                d="M48 30 Q46 22 50 15"
-                stroke="#224F10"
-                stroke-width="1.5"
-                fill="none"
-                stroke-linecap="round"
-                class="tea-steam"
-              />
-            </svg>
+        <div class="max-w-4xl mx-auto text-center relative z-10 w-full">
+          <div class="mb-6 sm:mb-8 animate-float">
+            <img
+              src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/mindful%20craft.png"
+              alt="Mindful Craft Logo"
+              width="200"
+              height="200"
+              loading="lazy"
+              onerror="console.error('Logo failed to load:', this.src); this.style.background='#1d421d'; this.alt='MC';"
+              class="mx-auto rounded-lg w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56"
+            />
           </div>
           <p
-            class="text-sm uppercase tracking-[0.3em] mb-6 animate-fade-in-up"
-            style="color: var(--gray-stone)"
+            class="text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-4 sm:mb-6 animate-fade-in-up px-2 font-bold"
+            style="color: #000000"
           >
             Bienestar creativo consciente
           </p>
           <h1
-            id="hero-title"
-            class="font-serif-elegant text-5xl md:text-7xl lg:text-8xl font-medium mb-6 animate-fade-in-up-delay-1"
-            style="color: var(--green-moss)"
+            class="font-serif-elegant text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-bold mb-4 sm:mb-6 animate-fade-in-up-delay-1 leading-tight px-2"
+            style="color: #000000"
           >
             Mindful Craft
           </h1>
           <p
-            id="hero-subtitle"
-            class="font-serif-elegant text-xl md:text-2xl italic mb-4 animate-fade-in-up-delay-2"
-            style="color: var(--gray-stone)"
+            class="font-serif-elegant text-lg sm:text-xl md:text-2xl italic mb-3 sm:mb-4 animate-fade-in-up-delay-2 leading-relaxed px-2 font-bold"
+            style="color: #000000"
           >
             Desacelera tu mente. Reconecta con tu creatividad.
           </p>
           <p
-            class="text-base md:text-lg max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up-delay-3"
-            style="color: var(--gray-stone)"
+            class="text-sm sm:text-base md:text-lg max-w-2xl mx-auto mb-6 sm:mb-10 leading-relaxed animate-fade-in-up-delay-3 px-3 font-semibold"
+            style="color: #000000"
           >
             Una plataforma digital que transforma tu entorno tecnológico en un
             espacio de ritual, contemplación y expresión manual.
           </p>
           <div
-            class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up-delay-3"
+            class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center animate-fade-in-up-delay-3 px-3 mb-8"
           >
             <button
-              id="cta-button"
-              class="btn-primary px-8 py-4 rounded-full text-white font-medium transition-all hover:scale-105"
-              style="background-color: var(--green-moss)"
+              class="btn-primary px-6 sm:px-8 py-3 sm:py-4 rounded-full text-white font-bold transition-all hover:scale-105 text-sm sm:text-base"
+              style="background-color: #1d421d"
             >
               Comenzar tu ritual ✨
             </button>
             <button
-              class="px-8 py-4 rounded-full font-medium border-2 transition-all hover:bg-[#224F10] hover:text-white"
-              style="border-color: var(--green-moss); color: var(--green-moss)"
+              class="px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold border-2 transition-all hover:bg-[#1d421d] hover:text-white text-sm sm:text-base w-full sm:w-auto"
+              style="border-color: #1d421d; color: #000000"
             >
               Descubrir más
             </button>
           </div>
-          <!-- Scroll indicator -->
-          <div
-            class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce"
-          >
-            <svg
-              width="24"
-              height="24"
-              viewbox="0 0 24 24"
-              fill="none"
-              stroke="#6E6E6E"
-              stroke-width="2"
-            >
-              <path d="M12 5v14M5 12l7 7 7-7" />
-            </svg>
-          </div>
         </div>
       </header>
       <!-- Mission Section -->
-      <section class="py-24 px-6 relative">
-        <div class="section-divider max-w-4xl mx-auto mb-24"></div>
+      <section class="py-16 sm:py-24 px-4 sm:px-6 relative">
+        <div class="section-divider max-w-4xl mx-auto mb-16 sm:mb-24"></div>
         <div class="max-w-4xl mx-auto text-center">
           <span
-            class="inline-block px-4 py-2 rounded-full text-xs uppercase tracking-wider mb-8"
-            style="
-              background-color: rgba(34, 79, 16, 0.1);
-              color: var(--green-moss);
-            "
+            class="inline-block px-3 sm:px-4 py-2 rounded-full text-xs uppercase tracking-wider mb-6 sm:mb-8 font-bold"
+            style="background-color: rgba(29, 66, 29, 0.1); color: #000000"
           >
             Nuestra Misión
           </span>
           <h2
-            class="font-serif-elegant text-3xl md:text-5xl leading-tight mb-8"
-            style="color: var(--black-ink)"
+            class="font-serif-elegant text-2xl sm:text-3xl md:text-5xl leading-tight mb-6 sm:mb-8 px-2 font-bold"
+            style="color: #000000"
           >
             Humanizar la experiencia digital a través de
-            <span style="color: var(--green-moss)"
-              >micro-rituales creativos</span
-            >
+            <span style="color: #1d421d">micro-rituales creativos</span>
           </h2>
           <p
-            class="text-lg leading-relaxed max-w-2xl mx-auto"
-            style="color: var(--gray-stone)"
+            class="text-base sm:text-lg leading-relaxed max-w-2xl mx-auto px-3 font-semibold"
+            style="color: #000000"
           >
             Fomentamos la atención plena, la calma y el crecimiento personal en
             un mundo hiperconectado.
@@ -410,224 +552,172 @@
       <!-- Features Section -->
       <section
         id="funciones"
-        class="py-24 px-6"
+        class="py-16 sm:py-24 px-4 sm:px-6"
         style="
           background: linear-gradient(
             180deg,
             transparent 0%,
-            rgba(34, 79, 16, 0.03) 100%
+            rgba(29, 66, 29, 0.03) 100%
           );
         "
       >
         <div class="max-w-6xl mx-auto">
-          <div class="text-center mb-16">
+          <div class="text-center mb-12 sm:mb-16">
             <span
-              class="inline-block px-4 py-2 rounded-full text-xs uppercase tracking-wider mb-6"
-              style="
-                background-color: rgba(34, 79, 16, 0.1);
-                color: var(--green-moss);
-              "
+              class="inline-block px-3 sm:px-4 py-2 rounded-full text-xs uppercase tracking-wider mb-4 sm:mb-6 font-bold"
+              style="background-color: rgba(29, 66, 29, 0.1); color: #000000"
             >
               Funciones Principales
             </span>
             <h2
-              id="features-title"
-              class="font-serif-elegant text-3xl md:text-5xl"
-              style="color: var(--black-ink)"
+              class="font-serif-elegant text-2xl sm:text-3xl md:text-5xl px-2 font-bold"
+              style="color: #000000"
             >
               Tu santuario digital
             </h2>
           </div>
-          <div class="grid md:grid-cols-2 gap-8">
-            <!-- Tea Ritual -->
+          <div class="grid sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
             <div
-              class="card-hover p-8 rounded-3xl"
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl"
               style="background-color: white"
             >
               <div
-                class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
-                style="background-color: rgba(34, 79, 16, 0.1)"
+                class="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
               >
-                <span class="text-3xl">🫖</span>
+                <span class="text-2xl sm:text-3xl">🍵</span>
               </div>
               <h3
-                class="font-serif-elegant text-2xl mb-3"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-3 font-bold"
+                style="color: #000000"
               >
                 Ritual del Té Digital
               </h3>
-              <p class="mb-6" style="color: var(--gray-stone)">
+              <p
+                class="mb-4 sm:mb-6 text-sm sm:text-base font-semibold"
+                style="color: #000000"
+              >
                 Guía paso a paso con temporizador consciente, historia cultural
                 breve e intención diaria.
               </p>
               <div class="flex flex-wrap gap-2">
                 <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
+                  class="px-3 py-1 rounded-full text-xs font-semibold"
+                  style="background-color: var(--bg-beige); color: #000000"
                   >Temporizador</span
                 >
                 <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
+                  class="px-3 py-1 rounded-full text-xs font-semibold"
+                  style="background-color: var(--bg-beige); color: #000000"
                   >Historia</span
-                >
-                <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
-                  >Intención</span
                 >
               </div>
             </div>
-            <!-- Sashiko Studio -->
             <div
-              class="card-hover p-8 rounded-3xl"
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl"
               style="background-color: white"
             >
               <div
-                class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
-                style="background-color: rgba(34, 79, 16, 0.1)"
+                class="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
               >
-                <span class="text-3xl">🧵</span>
+                <span class="text-2xl sm:text-3xl">🧵</span>
               </div>
               <h3
-                class="font-serif-elegant text-2xl mb-3"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-3 font-bold"
+                style="color: #000000"
               >
                 Sashiko Studio
               </h3>
-              <p class="mb-6" style="color: var(--gray-stone)">
+              <p
+                class="mb-4 sm:mb-6 text-sm sm:text-base font-semibold"
+                style="color: #000000"
+              >
                 Patrones descargables con animación de puntadas y música
                 ambiente minimal.
               </p>
               <div class="flex flex-wrap gap-2">
                 <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
+                  class="px-3 py-1 rounded-full text-xs font-semibold"
+                  style="background-color: var(--bg-beige); color: #000000"
                   >Patrones</span
                 >
                 <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
+                  class="px-3 py-1 rounded-full text-xs font-semibold"
+                  style="background-color: var(--bg-beige); color: #000000"
                   >Animación</span
-                >
-                <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
-                  >Música</span
                 >
               </div>
             </div>
-            <!-- Calligraphy Flow -->
             <div
-              class="card-hover p-8 rounded-3xl"
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl"
               style="background-color: white"
             >
               <div
-                class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
-                style="background-color: rgba(34, 79, 16, 0.1)"
+                class="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
               >
-                <span class="text-3xl">🖋️</span>
+                <span class="text-2xl sm:text-3xl">🖋️</span>
               </div>
               <h3
-                class="font-serif-elegant text-2xl mb-3"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-3 font-bold"
+                style="color: #000000"
               >
                 Caligrafía Flow
               </h3>
-              <p class="mb-6" style="color: var(--gray-stone)">
+              <p
+                class="mb-4 sm:mb-6 text-sm sm:text-base font-semibold"
+                style="color: #000000"
+              >
                 Frases meditativas con guía de trazos y modo práctica lenta para
                 reconectar.
               </p>
               <div class="flex flex-wrap gap-2">
                 <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
+                  class="px-3 py-1 rounded-full text-xs font-semibold"
+                  style="background-color: var(--bg-beige); color: #000000"
                   >Frases</span
                 >
                 <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
+                  class="px-3 py-1 rounded-full text-xs font-semibold"
+                  style="background-color: var(--bg-beige); color: #000000"
                   >Guía</span
-                >
-                <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
-                  >Práctica</span
                 >
               </div>
             </div>
-            <!-- Emotional Journal -->
             <div
-              class="card-hover p-8 rounded-3xl"
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl"
               style="background-color: white"
             >
               <div
-                class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
-                style="background-color: rgba(34, 79, 16, 0.1)"
+                class="w-14 sm:w-16 h-14 sm:h-16 rounded-2xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
               >
-                <span class="text-3xl">📓</span>
+                <span class="text-2xl sm:text-3xl">📓</span>
               </div>
               <h3
-                class="font-serif-elegant text-2xl mb-3"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-3 font-bold"
+                style="color: #000000"
               >
                 Diario Emocional
               </h3>
-              <p class="mb-6" style="color: var(--gray-stone)">
+              <p
+                class="mb-4 sm:mb-6 text-sm sm:text-base font-semibold"
+                style="color: #000000"
+              >
                 Escala visual simple con reflexión guiada y seguimiento semanal
                 de tu bienestar.
               </p>
               <div class="flex flex-wrap gap-2">
                 <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
+                  class="px-3 py-1 rounded-full text-xs font-semibold"
+                  style="background-color: var(--bg-beige); color: #000000"
                   >Escala</span
                 >
                 <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
+                  class="px-3 py-1 rounded-full text-xs font-semibold"
+                  style="background-color: var(--bg-beige); color: #000000"
                   >Reflexión</span
-                >
-                <span
-                  class="px-3 py-1 rounded-full text-xs"
-                  style="
-                    background-color: var(--bg-beige);
-                    color: var(--gray-stone);
-                  "
-                  >Seguimiento</span
                 >
               </div>
             </div>
@@ -635,509 +725,873 @@
         </div>
       </section>
       <!-- Values Section -->
-      <section id="valores" class="py-24 px-6">
+      <section id="valores" class="py-16 sm:py-24 px-4 sm:px-6">
         <div class="max-w-6xl mx-auto">
-          <div class="text-center mb-16">
+          <div class="text-center mb-12 sm:mb-16">
             <span
-              class="inline-block px-4 py-2 rounded-full text-xs uppercase tracking-wider mb-6"
-              style="
-                background-color: rgba(34, 79, 16, 0.1);
-                color: var(--green-moss);
-              "
+              class="inline-block px-3 sm:px-4 py-2 rounded-full text-xs uppercase tracking-wider mb-4 sm:mb-6 font-bold"
+              style="background-color: rgba(29, 66, 29, 0.1); color: #000000"
             >
               Nuestros Valores
             </span>
             <h2
-              class="font-serif-elegant text-3xl md:text-5xl"
-              style="color: var(--black-ink)"
+              class="font-serif-elegant text-2xl sm:text-3xl md:text-5xl px-2 font-bold"
+              style="color: #000000"
             >
               Lo que nos define
             </h2>
           </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <div
-              class="p-6 rounded-2xl text-center border"
-              style="border-color: rgba(34, 79, 16, 0.2)"
+              class="p-4 sm:p-6 rounded-xl sm:rounded-2xl text-center border"
+              style="border-color: rgba(29, 66, 29, 0.2)"
             >
-              <div class="text-3xl mb-4">♿</div>
+              <div class="text-2xl sm:text-3xl mb-3 sm:mb-4">♿</div>
               <h3
-                class="font-serif-elegant text-lg mb-2"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-base sm:text-lg mb-2 font-bold"
+                style="color: #000000"
               >
                 Inclusión Real
               </h3>
-              <p class="text-sm" style="color: var(--gray-stone)">
+              <p
+                class="text-xs sm:text-sm font-semibold"
+                style="color: #000000"
+              >
                 Diseño accesible para todos
               </p>
             </div>
             <div
-              class="p-6 rounded-2xl text-center border"
-              style="border-color: rgba(34, 79, 16, 0.2)"
+              class="p-4 sm:p-6 rounded-xl sm:rounded-2xl text-center border"
+              style="border-color: rgba(29, 66, 29, 0.2)"
             >
-              <div class="text-3xl mb-4">🍃</div>
+              <div class="text-2xl sm:text-3xl mb-3 sm:mb-4">🍃</div>
               <h3
-                class="font-serif-elegant text-lg mb-2"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-base sm:text-lg mb-2 font-bold"
+                style="color: #000000"
               >
                 Calma sobre Productividad
               </h3>
-              <p class="text-sm" style="color: var(--gray-stone)">
+              <p
+                class="text-xs sm:text-sm font-semibold"
+                style="color: #000000"
+              >
                 Tu bienestar es primero
               </p>
             </div>
             <div
-              class="p-6 rounded-2xl text-center border"
-              style="border-color: rgba(34, 79, 16, 0.2)"
+              class="p-4 sm:p-6 rounded-xl sm:rounded-2xl text-center border"
+              style="border-color: rgba(29, 66, 29, 0.2)"
             >
-              <div class="text-3xl mb-4">✨</div>
+              <div class="text-2xl sm:text-3xl mb-3 sm:mb-4">✨</div>
               <h3
-                class="font-serif-elegant text-lg mb-2"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-base sm:text-lg mb-2 font-bold"
+                style="color: #000000"
               >
                 Ritual sobre Consumo
               </h3>
-              <p class="text-sm" style="color: var(--gray-stone)">
+              <p
+                class="text-xs sm:text-sm font-semibold"
+                style="color: #000000"
+              >
                 Experiencias significativas
               </p>
             </div>
             <div
-              class="p-6 rounded-2xl text-center border"
-              style="border-color: rgba(34, 79, 16, 0.2)"
+              class="p-4 sm:p-6 rounded-xl sm:rounded-2xl text-center border"
+              style="border-color: rgba(29, 66, 29, 0.2)"
             >
-              <div class="text-3xl mb-4">📚</div>
+              <div class="text-2xl sm:text-3xl mb-3 sm:mb-4">📚</div>
               <h3
-                class="font-serif-elegant text-lg mb-2"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-base sm:text-lg mb-2 font-bold"
+                style="color: #000000"
               >
                 Aprendizaje Continuo
               </h3>
-              <p class="text-sm" style="color: var(--gray-stone)">
+              <p
+                class="text-xs sm:text-sm font-semibold"
+                style="color: #000000"
+              >
                 Crece cada día
               </p>
             </div>
             <div
-              class="p-6 rounded-2xl text-center border"
-              style="border-color: rgba(34, 79, 16, 0.2)"
+              class="p-4 sm:p-6 rounded-xl sm:rounded-2xl text-center border"
+              style="border-color: rgba(29, 66, 29, 0.2)"
             >
-              <div class="text-3xl mb-4">🎨</div>
+              <div class="text-2xl sm:text-3xl mb-3 sm:mb-4">🎨</div>
               <h3
-                class="font-serif-elegant text-lg mb-2"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-base sm:text-lg mb-2 font-bold"
+                style="color: #000000"
               >
                 Belleza Funcional
               </h3>
-              <p class="text-sm" style="color: var(--gray-stone)">
+              <p
+                class="text-xs sm:text-sm font-semibold"
+                style="color: #000000"
+              >
                 Diseño con propósito
               </p>
             </div>
             <div
-              class="p-6 rounded-2xl text-center border"
-              style="border-color: rgba(34, 79, 16, 0.2)"
+              class="p-4 sm:p-6 rounded-xl sm:rounded-2xl text-center border"
+              style="border-color: rgba(29, 66, 29, 0.2)"
             >
-              <div class="text-3xl mb-4">🌐</div>
+              <div class="text-2xl sm:text-3xl mb-3 sm:mb-4">🌐</div>
               <h3
-                class="font-serif-elegant text-lg mb-2"
-                style="color: var(--green-moss)"
+                class="font-serif-elegant text-base sm:text-lg mb-2 font-bold"
+                style="color: #000000"
               >
                 Tecnología Consciente
               </h3>
-              <p class="text-sm" style="color: var(--gray-stone)">
+              <p
+                class="text-xs sm:text-sm font-semibold"
+                style="color: #000000"
+              >
                 Digital con humanidad
               </p>
             </div>
           </div>
         </div>
       </section>
-      <!-- Ritual CTA Section -->
-      <section id="ritual" class="py-24 px-6 relative overflow-hidden">
-        <div class="absolute inset-0 pattern-sashiko opacity-5"></div>
-        <div class="max-w-4xl mx-auto relative z-10">
-          <div
-            class="p-12 md:p-16 rounded-3xl text-center relative"
-            style="
-              background: linear-gradient(135deg, #224f10 0%, #3a6b23 100%);
-            "
-          >
-            <!-- Decorative corner elements -->
-            <div
-              class="absolute top-6 left-6 w-12 h-12 border-t-2 border-l-2 rounded-tl-lg"
-              style="border-color: rgba(255, 255, 255, 0.3)"
-            ></div>
-            <div
-              class="absolute bottom-6 right-6 w-12 h-12 border-b-2 border-r-2 rounded-br-lg"
-              style="border-color: rgba(255, 255, 255, 0.3)"
-            ></div>
-            <span class="text-5xl mb-6 block">🧘</span>
-            <h2 class="font-serif-elegant text-3xl md:text-4xl text-white mb-4">
-              Comienza tu práctica hoy
+      <!-- Events Section -->
+      <section
+        id="eventos"
+        class="py-16 sm:py-24 px-4 sm:px-6"
+        style="
+          background: linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(29, 66, 29, 0.03) 100%
+          );
+        "
+      >
+        <div class="max-w-6xl mx-auto">
+          <div class="text-center mb-12 sm:mb-16">
+            <span
+              class="inline-block px-3 sm:px-4 py-2 rounded-full text-xs uppercase tracking-wider mb-4 sm:mb-6 font-bold"
+              style="background-color: rgba(29, 66, 29, 0.1); color: #000000"
+            >
+              Experiencias Presenciales
+            </span>
+            <h2
+              class="font-serif-elegant text-2xl sm:text-3xl md:text-5xl px-2 mb-4 font-bold"
+              style="color: #000000"
+            >
+              Rituales en comunidad
             </h2>
-            <p class="text-white/80 mb-8 max-w-lg mx-auto">
-              Micro-sesiones de 10–20 minutos diseñadas para integrar el
-              bienestar en tu vida cotidiana.
-            </p>
-            <button
-              class="px-10 py-4 rounded-full font-medium text-lg transition-all hover:scale-105 hover:shadow-lg"
-              style="
-                background-color: var(--bg-beige);
-                color: var(--green-moss);
-              "
-            >
-              Descargar App Gratis
-            </button>
+          </div>
+          <!-- Ceremonia del Té -->
+          <div class="mb-16 sm:mb-24">
             <div
-              class="flex justify-center gap-8 mt-10 pt-8 border-t"
-              style="border-color: rgba(255, 255, 255, 0.2)"
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl mb-6 sm:mb-8"
+              style="background-color: white"
             >
-              <div class="text-center">
-                <div
-                  class="font-serif-elegant text-3xl text-white font-semibold"
-                >
-                  10+
-                </div>
-                <div class="text-white/60 text-sm">Rituales</div>
+              <div
+                class="w-12 sm:w-14 h-12 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
+              >
+                <span class="text-2xl sm:text-3xl">🍵</span>
               </div>
-              <div class="text-center">
-                <div
-                  class="font-serif-elegant text-3xl text-white font-semibold"
-                >
-                  50+
-                </div>
-                <div class="text-white/60 text-sm">Patrones</div>
+              <h3
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-4 font-bold"
+                style="color: #000000"
+              >
+                Ceremonia del Té
+              </h3>
+              <p
+                class="text-sm sm:text-base mb-6 font-semibold"
+                style="color: #000000"
+              >
+                Experiencia contemplativa con introducción histórica, ceremonia
+                guiada y meditación en silencio.
+              </p>
+              <button
+                onclick="showToast('¡Pronto disponible!')"
+                class="w-full px-4 py-3 rounded-full text-white font-bold text-sm sm:text-base"
+                style="background-color: #1d421d"
+              >
+                Agendar sesión
+              </button>
+            </div>
+            <div class="grid sm:grid-cols-3 gap-3 sm:gap-4">
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/matcha%201.jpeg"
+                  alt="Ceremonia del Té 1"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
               </div>
-              <div class="text-center">
-                <div
-                  class="font-serif-elegant text-3xl text-white font-semibold"
-                >
-                  ∞
-                </div>
-                <div class="text-white/60 text-sm">Calma</div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/matcha%202.jpeg"
+                  alt="Ceremonia del Té 2"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/matcha%203.jpeg"
+                  alt="Ceremonia del Té 3"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+            </div>
+          </div>
+          <!-- Sashiko Studio -->
+          <div class="mb-16 sm:mb-24">
+            <div
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl mb-6 sm:mb-8"
+              style="background-color: white"
+            >
+              <div
+                class="w-12 sm:w-14 h-12 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
+              >
+                <span class="text-2xl sm:text-3xl">🧵</span>
+              </div>
+              <h3
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-4 font-bold"
+                style="color: #000000"
+              >
+                Sashiko Studio
+              </h3>
+              <p
+                class="text-sm sm:text-base mb-6 font-semibold"
+                style="color: #000000"
+              >
+                Taller textil con técnica de bordado, creación de pieza única y
+                meditación en movimiento.
+              </p>
+              <button
+                onclick="showToast('¡Pronto disponible!')"
+                class="w-full px-4 py-3 rounded-full text-white font-bold text-sm sm:text-base"
+                style="background-color: #1d421d"
+              >
+                Agendar taller
+              </button>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/sahiko.jpeg"
+                  alt="Sashiko 1"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/sahiko%203.jpeg"
+                  alt="Sashiko 2"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/sashiko%202.jpeg"
+                  alt="Sashiko 3"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/sahiko%204.jpeg"
+                  alt="Sashiko 4"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+            </div>
+          </div>
+          <!-- Caligrafía Sumi-e -->
+          <div class="mb-16 sm:mb-24">
+            <div
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl mb-6 sm:mb-8"
+              style="background-color: white"
+            >
+              <div
+                class="w-12 sm:w-14 h-12 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
+              >
+                <span class="text-2xl sm:text-3xl">🖌</span>
+              </div>
+              <h3
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-4 font-bold"
+                style="color: #000000"
+              >
+                Caligrafía Japonesa &amp; Sumi-e
+              </h3>
+              <p
+                class="text-sm sm:text-base mb-6 font-semibold"
+                style="color: #000000"
+              >
+                Historia del arte japonés, técnica de tinta y meditación en
+                movimiento.
+              </p>
+              <button
+                onclick="showToast('¡Pronto disponible!')"
+                class="w-full px-4 py-3 rounded-full text-white font-bold text-sm sm:text-base"
+                style="background-color: #1d421d"
+              >
+                Agendar taller
+              </button>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/sumi%201.jpeg"
+                  alt="Sumi-e 1"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/sumi%202.jpeg"
+                  alt="Sumi-e 2"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/sumi%203.jpeg"
+                  alt="Sumi-e 3"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/sumi%204.jpeg"
+                  alt="Sumi-e 4"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+            </div>
+          </div>
+          <!-- Caligrafía China -->
+          <div class="mb-16 sm:mb-24">
+            <div
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl mb-6 sm:mb-8"
+              style="background-color: white"
+            >
+              <div
+                class="w-12 sm:w-14 h-12 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
+              >
+                <span class="text-2xl sm:text-3xl">✍️</span>
+              </div>
+              <h3
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-4 font-bold"
+                style="color: #000000"
+              >
+                Caligrafía China
+              </h3>
+              <p
+                class="text-sm sm:text-base mb-6 font-semibold"
+                style="color: #000000"
+              >
+                Contexto histórico, técnica de pincel, inspiración Tao Te Ching
+                y práctica meditativa.
+              </p>
+              <button
+                onclick="showToast('¡Pronto disponible!')"
+                class="w-full px-4 py-3 rounded-full text-white font-bold text-sm sm:text-base"
+                style="background-color: #1d421d"
+              >
+                Agendar taller
+              </button>
+            </div>
+            <div class="grid sm:grid-cols-3 gap-3 sm:gap-4">
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/tao.jpeg"
+                  alt="Caligrafía China 1"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/tao%202.jpeg"
+                  alt="Caligrafía China 2"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/sumi%204.jpeg"
+                  alt="Caligrafía China 3"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+            </div>
+          </div>
+          <!-- Journaling & Collage -->
+          <div>
+            <div
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl mb-6 sm:mb-8"
+              style="background-color: white"
+            >
+              <div
+                class="w-12 sm:w-14 h-12 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
+              >
+                <span class="text-2xl sm:text-3xl">📓</span>
+              </div>
+              <h3
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-4 font-bold"
+                style="color: #000000"
+              >
+                Journaling &amp; Collage
+              </h3>
+              <p
+                class="text-sm sm:text-base mb-6 font-semibold"
+                style="color: #000000"
+              >
+                Escritura guiada, collage digital y analógico, procesamiento
+                emocional.
+              </p>
+              <button
+                onclick="showToast('¡Pronto disponible!')"
+                class="w-full px-4 py-3 rounded-full text-white font-bold text-sm sm:text-base"
+                style="background-color: #1d421d"
+              >
+                Agendar taller
+              </button>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/journaling.jpeg"
+                  alt="Journaling 1"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/journaling%202.jpeg"
+                  alt="Journaling 2"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/journaling%203.jpeg"
+                  alt="Journaling 3"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
+              </div>
+              <div
+                class="relative overflow-hidden rounded-lg sm:rounded-xl group aspect-square"
+              >
+                <img
+                  src="https://raw.githubusercontent.com/desingtalkscreative-design/mindfulcraft/refs/heads/main/journaling%204.jpeg"
+                  alt="Journaling 4"
+                  loading="lazy"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onerror="console.error('Image failed to load:', this.src); this.style.background='#1d421d'; this.alt='Imagen no disponible';"
+                />
               </div>
             </div>
           </div>
         </div>
       </section>
-      <!-- Accessibility Section -->
-      <section class="py-24 px-6">
-        <div class="max-w-4xl mx-auto">
-          <div class="text-center mb-12">
+      <!-- Contact Section -->
+      <section id="contacto" class="py-16 sm:py-24 px-4 sm:px-6">
+        <div class="max-w-6xl mx-auto">
+          <div class="text-center mb-12 sm:mb-16">
             <span
-              class="inline-block px-4 py-2 rounded-full text-xs uppercase tracking-wider mb-6"
-              style="
-                background-color: rgba(34, 79, 16, 0.1);
-                color: var(--green-moss);
-              "
+              class="inline-block px-3 sm:px-4 py-2 rounded-full text-xs uppercase tracking-wider mb-4 sm:mb-6 font-bold"
+              style="background-color: rgba(29, 66, 29, 0.1); color: #000000"
             >
-              Accesibilidad
+              Contacto
             </span>
             <h2
-              class="font-serif-elegant text-3xl md:text-4xl"
-              style="color: var(--black-ink)"
+              class="font-serif-elegant text-2xl sm:text-3xl md:text-5xl px-2 mb-4 font-bold"
+              style="color: #000000"
             >
-              Diseñado para todos
+              Nos encantaría escucharte
             </h2>
           </div>
-          <div class="grid sm:grid-cols-2 gap-4">
+          <div class="grid md:grid-cols-2 gap-8 sm:gap-12">
             <div
-              class="flex items-center gap-4 p-4 rounded-xl"
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl"
               style="background-color: white"
             >
-              <span class="text-2xl">🔤</span>
-              <span style="color: var(--gray-stone)"
-                >Tipografía grande opcional</span
+              <div
+                class="w-12 sm:w-14 h-12 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
               >
-            </div>
-            <div
-              class="flex items-center gap-4 p-4 rounded-xl"
-              style="background-color: white"
-            >
-              <span class="text-2xl">◐</span>
-              <span style="color: var(--gray-stone)">Alto contraste</span>
-            </div>
-            <div
-              class="flex items-center gap-4 p-4 rounded-xl"
-              style="background-color: white"
-            >
-              <span class="text-2xl">📖</span>
-              <span style="color: var(--gray-stone)">Modo lectura simple</span>
-            </div>
-            <div
-              class="flex items-center gap-4 p-4 rounded-xl"
-              style="background-color: white"
-            >
-              <span class="text-2xl">🔊</span>
-              <span style="color: var(--gray-stone)"
-                >Audio para baja visión</span
+                <span class="text-2xl sm:text-3xl">✉️</span>
+              </div>
+              <h3
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-4 font-bold"
+                style="color: #000000"
               >
+                Email Directo
+              </h3>
+              <p
+                class="text-sm sm:text-base mb-6 font-semibold"
+                style="color: #000000"
+              >
+                Envíanos un email y responderemos en 24-48 horas.
+              </p>
+              <a
+                href="mailto:indigolilobarcena@delulufuture.dev"
+                class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-bold text-sm sm:text-base"
+                style="background-color: #1d421d"
+              >
+                📧 indigolilobarcena@delulufuture.dev
+              </a>
+            </div>
+            <div
+              class="card-hover p-6 sm:p-8 rounded-2xl sm:rounded-3xl"
+              style="background-color: white"
+            >
+              <div
+                class="w-12 sm:w-14 h-12 sm:h-14 rounded-xl flex items-center justify-center mb-4 sm:mb-6"
+                style="background-color: rgba(29, 66, 29, 0.1)"
+              >
+                <span class="text-2xl sm:text-3xl">💬</span>
+              </div>
+              <h3
+                class="font-serif-elegant text-xl sm:text-2xl mb-3 sm:mb-4 font-bold"
+                style="color: #000000"
+              >
+                Formulario
+              </h3>
+              <p
+                class="text-sm sm:text-base mb-6 font-semibold"
+                style="color: #000000"
+              >
+                Completa el formulario y nos contactaremos pronto.
+              </p>
+              <a
+                href="https://tally.so/r/9qDjNE"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-bold text-sm sm:text-base"
+                style="background-color: #1d421d"
+              >
+                📝 Abrir Formulario
+              </a>
             </div>
           </div>
         </div>
       </section>
       <!-- Footer -->
       <footer
-        class="py-16 px-6 border-t"
-        style="border-color: rgba(34, 79, 16, 0.1)"
+        class="py-12 sm:py-16 px-4 sm:px-6 border-t"
+        style="border-color: rgba(29, 66, 29, 0.1)"
       >
         <div class="max-w-6xl mx-auto">
-          <div
-            class="flex flex-col md:flex-row justify-between items-center gap-8"
-          >
-            <div class="flex items-center gap-3">
-              <svg width="28" height="28" viewbox="0 0 40 40" fill="none">
-                <circle
-                  cx="20"
-                  cy="20"
-                  r="18"
-                  stroke="#224F10"
-                  stroke-width="2"
-                  fill="none"
-                />
-                <path
-                  d="M12 20 Q20 10 28 20 Q20 30 12 20"
-                  stroke="#224F10"
-                  stroke-width="1.5"
-                  fill="none"
-                />
-                <circle cx="20" cy="20" r="3" fill="#224F10" /></svg
-              ><span
-                class="font-serif-elegant text-lg"
-                style="color: var(--green-moss)"
-                >Mindful Craft</span
-              >
-            </div>
+          <div class="text-center mb-8">
             <p
-              id="footer-text"
-              class="font-serif-elegant italic text-center"
-              style="color: var(--gray-stone)"
+              class="font-serif-elegant italic text-sm sm:text-base font-bold"
+              style="color: #000000"
             >
               "Calma sobre productividad. Ritual sobre consumo."
             </p>
-            <div class="flex gap-6">
-              <a
-                href="#"
-                class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                style="
-                  background-color: rgba(34, 79, 16, 0.1);
-                  color: var(--green-moss);
-                "
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewbox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z"
-                  /></svg
-              ></a>
-              <a
-                href="#"
-                class="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
-                style="
-                  background-color: rgba(34, 79, 16, 0.1);
-                  color: var(--green-moss);
-                "
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewbox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
-                  /></svg
-              ></a>
-            </div>
           </div>
-          <div class="section-divider my-8"></div>
-          <p class="text-center text-sm" style="color: var(--gray-stone)">
+          <p
+            class="text-center text-xs sm:text-sm font-semibold"
+            style="color: #000000"
+          >
             © 2024 Mindful Craft. Todos los derechos reservados.
           </p>
         </div>
       </footer>
     </div>
+    <!-- CHATBOT WIDGET -->
+    <div id="chatbot-widget">
+      <button id="chatbot-toggle">💬</button>
+      <div id="chatbot-container">
+        <div
+          style="
+            background: linear-gradient(135deg, #1d421d 0%, #2a5f2a 100%);
+            color: white;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+          "
+        >
+          <div style="display: flex; align-items: center; gap: 12px">
+            <span style="font-size: 18px">🧘</span>
+            <div>
+              <p style="font-size: 15px; font-weight: 700; margin: 0">
+                Mindful Assistant
+              </p>
+              <p style="font-size: 11px; opacity: 0.8; margin: 0">En línea</p>
+            </div>
+          </div>
+          <button
+            id="chatbot-close"
+            style="
+              background: none;
+              border: none;
+              color: white;
+              cursor: pointer;
+              font-size: 18px;
+              padding: 0;
+            "
+          >
+            ✕
+          </button>
+        </div>
+        <div
+          id="chatbot-messages"
+          style="
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: linear-gradient(to bottom, #f3efea 0%, white 100%);
+          "
+        ></div>
+        <div
+          style="
+            padding: 12px;
+            border-top: 1px solid rgba(29, 66, 29, 0.1);
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+            background: white;
+          "
+        >
+          <input
+            id="chatbot-input"
+            type="text"
+            placeholder="Escribe aquí..."
+            style="
+              flex: 1;
+              border: 1px solid rgba(29, 66, 29, 0.2);
+              border-radius: 20px;
+              padding: 10px 16px;
+              font-size: 13px;
+              font-family: 'Manrope', system-ui, sans-serif;
+              outline: none;
+            "
+          />
+          <button
+            id="chatbot-send"
+            style="
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              background: #1d421d;
+              color: white;
+              border: none;
+              cursor: pointer;
+              font-size: 16px;
+              transition: all 0.2s;
+            "
+          >
+            →
+          </button>
+        </div>
+      </div>
+    </div>
     <script>
-      const defaultConfig = {
-        hero_title: "Mindful Craft",
-        hero_subtitle: "Desacelera tu mente. Reconecta con tu creatividad.",
-        cta_button_text: "Comenzar tu ritual ✨",
-        features_title: "Tu santuario digital",
-        footer_text: '"Calma sobre productividad. Ritual sobre consumo."',
-        background_color: "#F3EFEA",
-        primary_color: "#224F10",
-        text_color: "#111111",
-        secondary_text_color: "#6E6E6E",
-        accent_color: "#3A6B23",
-        font_family: "Cormorant Garamond",
-        font_size: 16,
+      let chatMessages = [];
+      let chatOpen = false;
+
+      const knowledgeBase = {
+        funciones: {
+          keywords: ["funciones", "características", "qué ofrece"],
+          response: `Nuestras funciones principales:\n\n🍵 **Ritual del Té**: Temporizador consciente e intención diaria\n🧵 **Sashiko Studio**: Patrones con animación\n🖋️ **Caligrafía Flow**: Frases meditativas\n📓 **Diario Emocional**: Reflexión guiada`,
+        },
+        eventos: {
+          keywords: ["eventos", "taller", "ceremonia"],
+          response: `Tenemos 5 experiencias presenciales:\n\n🍵 Ceremonia del Té\n🧵 Sashiko Studio\n🖌️ Caligrafía Japonesa & Sumi-e\n✍️ Caligrafía China\n📓 Journaling & Collage\n\n¿Cuál te interesa?`,
+        },
+        valores: {
+          keywords: ["valores", "principios"],
+          response: `Nuestros valores:\n• ♿ Inclusión Real\n• 🍃 Calma sobre Productividad\n• ✨ Ritual sobre Consumo\n• 📚 Aprendizaje Continuo\n• 🎨 Belleza Funcional\n• 🌐 Tecnología Consciente`,
+        },
+        contacto: {
+          keywords: ["contacto", "email", "formulario"],
+          response: `📧 Email: indigolilobarcena@delulufuture.dev\n📝 Formulario: https://tally.so/r/9qDjNE\n\nRespondemos en 24-48 horas.`,
+        },
       };
 
-      async function onConfigChange(config) {
-        const heroTitleEl = document.getElementById("hero-title");
-        const heroSubtitleEl = document.getElementById("hero-subtitle");
-        const ctaButtonEl = document.getElementById("cta-button");
-        const featuresTitleEl = document.getElementById("features-title");
-        const footerTextEl = document.getElementById("footer-text");
-
-        if (heroTitleEl) {
-          heroTitleEl.textContent =
-            config.hero_title || defaultConfig.hero_title;
-        }
-        if (heroSubtitleEl) {
-          heroSubtitleEl.textContent =
-            config.hero_subtitle || defaultConfig.hero_subtitle;
-        }
-        if (ctaButtonEl) {
-          ctaButtonEl.textContent =
-            config.cta_button_text || defaultConfig.cta_button_text;
-        }
-        if (featuresTitleEl) {
-          featuresTitleEl.textContent =
-            config.features_title || defaultConfig.features_title;
-        }
-        if (footerTextEl) {
-          footerTextEl.textContent =
-            config.footer_text || defaultConfig.footer_text;
-        }
-
-        // Apply colors
-        const bgColor =
-          config.background_color || defaultConfig.background_color;
-        const primaryColor =
-          config.primary_color || defaultConfig.primary_color;
-        const textColor = config.text_color || defaultConfig.text_color;
-        const secondaryTextColor =
-          config.secondary_text_color || defaultConfig.secondary_text_color;
-        const accentColor = config.accent_color || defaultConfig.accent_color;
-
-        document.documentElement.style.setProperty("--bg-beige", bgColor);
-        document.documentElement.style.setProperty(
-          "--green-moss",
-          primaryColor
-        );
-        document.documentElement.style.setProperty("--black-ink", textColor);
-        document.documentElement.style.setProperty(
-          "--gray-stone",
-          secondaryTextColor
-        );
-        document.documentElement.style.setProperty(
-          "--green-hover",
-          accentColor
-        );
-
-        document.body.style.backgroundColor = bgColor;
-        document.body.style.color = textColor;
-
-        // Apply font
-        const fontFamily = config.font_family || defaultConfig.font_family;
-        const baseFontStack = "Georgia, serif";
-        document.querySelectorAll(".font-serif-elegant").forEach((el) => {
-          el.style.fontFamily = `${fontFamily}, ${baseFontStack}`;
-        });
-
-        // Apply font size
-        const baseSize = config.font_size || defaultConfig.font_size;
-        document.body.style.fontSize = `${baseSize}px`;
-      }
-
-      function mapToCapabilities(config) {
-        return {
-          recolorables: [
-            {
-              get: () =>
-                config.background_color || defaultConfig.background_color,
-              set: (value) => {
-                config.background_color = value;
-                window.elementSdk.setConfig({ background_color: value });
-              },
-            },
-            {
-              get: () =>
-                config.secondary_text_color ||
-                defaultConfig.secondary_text_color,
-              set: (value) => {
-                config.secondary_text_color = value;
-                window.elementSdk.setConfig({ secondary_text_color: value });
-              },
-            },
-            {
-              get: () => config.text_color || defaultConfig.text_color,
-              set: (value) => {
-                config.text_color = value;
-                window.elementSdk.setConfig({ text_color: value });
-              },
-            },
-            {
-              get: () => config.primary_color || defaultConfig.primary_color,
-              set: (value) => {
-                config.primary_color = value;
-                window.elementSdk.setConfig({ primary_color: value });
-              },
-            },
-            {
-              get: () => config.accent_color || defaultConfig.accent_color,
-              set: (value) => {
-                config.accent_color = value;
-                window.elementSdk.setConfig({ accent_color: value });
-              },
-            },
-          ],
-          borderables: [],
-          fontEditable: {
-            get: () => config.font_family || defaultConfig.font_family,
-            set: (value) => {
-              config.font_family = value;
-              window.elementSdk.setConfig({ font_family: value });
-            },
-          },
-          fontSizeable: {
-            get: () => config.font_size || defaultConfig.font_size,
-            set: (value) => {
-              config.font_size = value;
-              window.elementSdk.setConfig({ font_size: value });
-            },
-          },
-        };
-      }
-
-      function mapToEditPanelValues(config) {
-        return new Map([
-          ["hero_title", config.hero_title || defaultConfig.hero_title],
-          [
-            "hero_subtitle",
-            config.hero_subtitle || defaultConfig.hero_subtitle,
-          ],
-          [
-            "cta_button_text",
-            config.cta_button_text || defaultConfig.cta_button_text,
-          ],
-          [
-            "features_title",
-            config.features_title || defaultConfig.features_title,
-          ],
-          ["footer_text", config.footer_text || defaultConfig.footer_text],
-        ]);
-      }
-
-      // Initialize SDK
-      if (window.elementSdk) {
-        window.elementSdk.init({
-          defaultConfig,
-          onConfigChange,
-          mapToCapabilities,
-          mapToEditPanelValues,
-        });
-      }
-
-      // Smooth scroll for navigation
-      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener("click", function (e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute("href"));
-          if (target) {
-            target.scrollIntoView({ behavior: "smooth" });
+      function generateResponse(text) {
+        const lower = text.toLowerCase();
+        for (const [key, data] of Object.entries(knowledgeBase)) {
+          if (data.keywords.some((kw) => lower.includes(kw))) {
+            return data.response;
           }
+        }
+        const responses = [
+          "¡Buena pregunta! 🤔 Puedo ayudarte con funciones, eventos, valores o contacto.",
+          "Interesante. ¿Quieres saber más sobre algo específico?",
+          "💚 ¿Hay algo en particular que te interese conocer?",
+        ];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+
+      function createMessage(text, isUser) {
+        const div = document.createElement("div");
+        div.className = isUser ? "chatbot-msg-user" : "chatbot-msg-bot";
+
+        const bubble = document.createElement("div");
+        bubble.className = `chatbot-bubble ${
+          isUser ? "chatbot-bubble-user" : "chatbot-bubble-bot"
+        }`;
+        bubble.innerHTML = text
+          .replace(/\n/g, "<br>")
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+        div.appendChild(bubble);
+        return div;
+      }
+
+      function showTyping() {
+        const div = document.createElement("div");
+        div.className = "chatbot-msg-bot";
+        div.innerHTML =
+          '<div class="chatbot-typing"><span></span><span></span><span></span></div>';
+        div.id = "typing-ind";
+        return div;
+      }
+
+      function toggleChat() {
+        const container = document.getElementById("chatbot-container");
+        chatOpen = !chatOpen;
+
+        if (chatOpen) {
+          container.classList.add("active");
+          document.getElementById("chatbot-input").focus();
+          if (chatMessages.length === 0) {
+            const msg = createMessage(
+              "¡Hola! Soy tu asistente. ¿Cómo puedo ayudarte? 🧘✨",
+              false
+            );
+            document.getElementById("chatbot-messages").appendChild(msg);
+            chatMessages.push(msg);
+          }
+        } else {
+          container.classList.remove("active");
+        }
+      }
+
+      function sendMsg() {
+        const input = document.getElementById("chatbot-input");
+        const text = input.value.trim();
+
+        if (!text) return;
+
+        const messagesDiv = document.getElementById("chatbot-messages");
+        messagesDiv.appendChild(createMessage(text, true));
+        input.value = "";
+
+        const typing = showTyping();
+        messagesDiv.appendChild(typing);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        setTimeout(() => {
+          typing.remove();
+          const response = generateResponse(text);
+          messagesDiv.appendChild(createMessage(response, false));
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 600 + Math.random() * 300);
+      }
+
+      function showToast(msg) {
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      document
+        .getElementById("chatbot-toggle")
+        .addEventListener("click", toggleChat);
+      document
+        .getElementById("chatbot-close")
+        .addEventListener("click", toggleChat);
+      document
+        .getElementById("chatbot-send")
+        .addEventListener("click", sendMsg);
+      document
+        .getElementById("chatbot-input")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") sendMsg();
+        });
+
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          const target = document.querySelector(a.getAttribute("href"));
+          if (target) target.scrollIntoView({ behavior: "smooth" });
         });
       });
     </script>
@@ -1148,7 +1602,7 @@
           if (b) {
             var d = b.createElement("script");
             d.innerHTML =
-              "window.__CF$cv$params={r:'9cda155362529122',t:'MTc3MTA0NjA4MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+              "window.__CF$cv$params={r:'9cdaed8462e0d232',t:'MTc3MTA1NDkzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
             b.getElementsByTagName("head")[0].appendChild(d);
           }
         }
